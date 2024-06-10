@@ -1,0 +1,282 @@
+---
+title: "ggVennDiagram"
+author: "R-Español"
+format: html
+editor: visual
+---
+
+## Quarto
+
+## Running Code
+
+Usar la combinación ctrl + alt + I
+
+### Cargar los paquetes
+
+```{r}
+library(tidyverse)
+library(ggVennDiagram)
+library(babynames)
+```
+
+Crear tres conjuntos aleatorios compuestos por letras del alfabeto
+
+```{r}
+
+set.seed(1970)
+
+A <- sample(letters,8) |> sort()
+B <- sample(letters,8) |> sort()
+C <- sample(letters,8) |> sort()
+```
+
+```{r}
+
+y <- list(
+  A ,B,C
+)
+```
+
+```{r}
+ggVennDiagram(y, label = "percent",label_percent_digit = 1)+
+  scale_fill_viridis_c()
+  
+```
+
+```{r}
+
+
+babies_1997 <- babynames |> 
+  filter(year == 1997) |> select(name) |> 
+                     pull()
+
+babies_2007 <- babynames |> 
+  filter(year == 2007) |> select(name) |> 
+                     pull()
+
+babies_2017 <- babynames |> 
+  filter(year == 2017) |> select(name) |> 
+                     pull()
+
+
+```
+
+```{r}
+lista_babies <- 
+  list(
+    year_1997 =babies_1997,
+    year_2007 =babies_2007,
+    year_2017 =babies_2017 
+  )
+```
+
+```{r}
+ggVennDiagram(lista_babies)+
+  scale_fill_distiller(palette = "RdBu")
+```
+
+```{r}
+venn_babies <- Venn(lista_babies)
+```
+
+```{r}
+overlap(venn_babies,1:2) |> length()
+```
+
+```{r}
+discern(venn_babies, 1:2) |> length()
+```
+
+```{r}
+pd <- process_data(venn_babies)
+```
+
+```{r}
+venn_set(pd) |> 
+  unnest(item)
+```
+
+```{r}
+
+cardiaco <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Aheart%20muscle%3BDetected%20in%20many&columns=g,gd,pe,evih,eviu,evin&compress=no&format=tsv")
+
+
+cardiaco <- cardiaco |> 
+  select(Gene) |> pull()
+```
+
+```{r}
+mus_esq <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Askeletal%20muscle%3BDetected%20in%20many&columns=g,gd,pe,evih,eviu,evin&compress=no&format=tsv")
+
+mus_esq <- mus_esq |> 
+  select(Gene) |> pull()
+```
+
+```{r}
+liso <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Asmooth%20muscle%3BDetected%20in%20many&columns=g,gd&compress=no&format=tsv")
+
+liso <- liso |> select(Gene) |> pull()
+```
+
+```{r}
+adiposo <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Aadipose%20tissue%3BDetected%20in%20many&columns=g,gd&compress=no&format=tsv")
+adiposo <- adiposo |> 
+  select(Gene) |> pull()
+```
+
+```{r}
+
+genes <- list(
+  Esquelético = mus_esq,
+  Liso = liso,
+  Cardíaco = cardiaco,
+  Adiposo =adiposo
+)
+```
+
+```{r}
+ggVennDiagram(genes)+
+  scale_fill_distiller(palette = "Paired")
+```
+
+```{r}
+plot_upset(Venn(genes))
+```
+
+# Comentario del Cuaderno QMD: ggVennDiagram
+
+#### Título y Autor
+
+---
+title: "ggVennDiagram"
+author: "R-Español"
+format: html
+editor: visual
+---
+
+#### Introducción
+
+Este cuaderno se centra en el uso del paquete `ggVennDiagram` para crear diagramas de Venn en R utilizando la sintaxis de `ggplot2`. Se incluyen ejemplos con conjuntos de letras, nombres de bebés y genes, demostrando la versatilidad y las capacidades de visualización del paquete.
+
+#### Cargar los paquetes
+
+Primero, se cargan los paquetes necesarios para el análisis y la visualización de datos.
+
+```{r}
+library(tidyverse)
+library(ggVennDiagram)
+library(babynames)
+```
+
+#### Creación de Conjuntos Aleatorios
+
+Se generan tres conjuntos aleatorios de letras del alfabeto.
+
+```{r}
+set.seed(1970)
+
+A <- sample(letters,8) |> sort()
+B <- sample(letters,8) |> sort()
+C <- sample(letters,8) |> sort()
+```
+
+Estos conjuntos se agrupan en una lista para su posterior visualización.
+
+```{r}
+y <- list(
+  A ,B,C
+)
+```
+
+#### Visualización del Diagrama de Venn
+
+Se crea un diagrama de Venn que muestra las intersecciones entre los conjuntos, con etiquetas de porcentaje.
+
+```{r}
+ggVennDiagram(y, label = "percent",label_percent_digit = 1)+
+  scale_fill_viridis_c()
+```
+
+#### Análisis de Nombres de Bebés
+
+Se filtran los nombres de bebés para los años 1997, 2007 y 2017 del conjunto de datos `babynames`.
+
+```{r}
+babies_1997 <- babynames |> 
+  filter(year == 1997) |> select(name) |> 
+                     pull()
+
+babies_2007 <- babynames |> 
+  filter(year == 2007) |> select(name) |> 
+                     pull()
+
+babies_2017 <- babynames |> 
+  filter(year == 2017) |> select(name) |> 
+                     pull()
+```
+
+Se agrupan los nombres en una lista y se crea un diagrama de Venn para visualizar las intersecciones entre los diferentes años.
+
+```{r}
+lista_babies <- 
+  list(
+    year_1997 =babies_1997,
+    year_2007 =babies_2007,
+    year_2017 =babies_2017 
+  )
+
+ggVennDiagram(lista_babies)+
+  scale_fill_distiller(palette = "RdBu")
+```
+
+#### Análisis de Intersecciones y Datos de Venn
+
+Se utilizan funciones adicionales para analizar las intersecciones y procesar los datos de Venn.
+
+```{r}
+venn_babies <- Venn(lista_babies)
+overlap(venn_babies,1:2) |> length()
+discern(venn_babies, 1:2) |> length()
+pd <- process_data(venn_babies)
+venn_set(pd) |> 
+  unnest(item)
+```
+
+#### Análisis de Genes por Tipo de Tejido
+
+Se descargan y procesan datos de genes de diferentes tipos de tejido a partir de Protein Atlas.
+
+```{r}
+cardiaco <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Aheart%20muscle%3BDetected%20in%20many&columns=g,gd,pe,evih,eviu,evin&compress=no&format=tsv")
+cardiaco <- cardiaco |> 
+  select(Gene) |> pull()
+
+mus_esq <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Askeletal%20muscle%3BDetected%20in%20many&columns=g,gd,pe,evih,eviu,evin&compress=no&format=tsv")
+mus_esq <- mus_esq |> 
+  select(Gene) |> pull()
+
+liso <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Asmooth%20muscle%3BDetected%20in%20many&columns=g,gd&compress=no&format=tsv")
+liso <- liso |> select(Gene) |> pull()
+
+adiposo <- read_tsv("https://www.proteinatlas.org/api/search_download.php?search=tissue_category_rna%3Aadipose%20tissue%3BDetected%20in%20many&columns=g,gd&compress=no&format=tsv")
+adiposo <- adiposo |> 
+  select(Gene) |> pull()
+```
+
+Se agrupan los genes en una lista y se crea un diagrama de Venn para visualizar las intersecciones entre los diferentes tipos de tejido.
+
+```{r}
+genes <- list(
+  Esquelético = mus_esq,
+  Liso = liso,
+  Cardíaco = cardiaco,
+  Adiposo =adiposo
+)
+
+ggVennDiagram(genes)+
+  scale_fill_distiller(palette = "Paired")
+```
+
+#### Visualización Adicional con Plot UpSet
+
+Se utiliza la función `plot_upset` para una visualización alternativa de las intersecciones.
